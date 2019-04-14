@@ -45,3 +45,4 @@ Collate:
     'SimilarityClustering.R'
     'MapReactome.R'
     'NewPublicApi.R'
+RoxygenNote: 6.1.1

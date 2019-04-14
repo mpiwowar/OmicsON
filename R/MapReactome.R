@@ -190,10 +190,18 @@ readGroupsAsDf <- function(pathToFileWithGroupDefinition ) {
                         stringsAsFactors = FALSE, sep = "\t", strip.white = TRUE)
 }
 
-
+# PRIVATE
+reduceCorrelation <- function(matrix, cutoff = 1) {
+    corMatrix <- cor(x = matrix)
+    corMatrix[upper.tri(corMatrix)] <- 0
+    diag(corMatrix) <- 0
+    matrix <- matrix[,!apply(corMatrix,2,function(x) any(x > cutoff))]
+    matrix
+}
 
 # NEW API CCA
-makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFrame, YDataFrame) {
+makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFrame, YDataFrame,
+                                             xCutoff = 1, yCutoff = 1) {
 
     # Where XData = transcriptomicsData and YData = lipidomicsData.
     XData <- data.frame(XDataFrame[!duplicated(XDataFrame[1]), ], row.names = 1)
@@ -208,18 +216,19 @@ makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFr
     X <- transposedXData[as.character(interX)]
     Y <- transposedYData[as.character(interY)]
 
+    X <- as.matrix(X)
+    Y <- as.matrix(Y)
+
+    X <- reduceCorrelation(X, cutoff = xCutoff)
+    Y <- reduceCorrelation(Y, cutoff = yCutoff)
+
     cca.fit <- NULL
 
-    if (!length(X) || !length(Y)) {
-        print("CCA is not possible.")
+    if (!length(X)) {
+        print("CCA is not possible - XDataFrame do not have specified names in xNamesVector")
+    } else if (!length(Y)) {
+        print("CCA is not possible - YDataFrame do not have specified names in yNamesVector")
     } else {
-        # print("X IS : ")
-        # print(X)
-        # print("Y IS : ")
-        # print(Y)
-        # cca.fit <- yacca::cca(X, Y)
-
-
         cca.fit <- tryCatch(
             {
                 yacca::cca(X, Y)
@@ -520,8 +529,8 @@ makePLSCharts <- function(PLS) {
 }
 
 
-# NEW PUBLIC API
-createFunctionalInteractionsDataFrame <- function(chebiToReactomeDataFrame, singleIdColumnName = 'ontologyId', idsListColumnName = 'ensembleIds') {
+# OLD PUBLIC API
+createFunctionalInteractionsDataFrameOld <- function(chebiToReactomeDataFrame, singleIdColumnName = 'ontologyId', idsListColumnName = 'ensembleIds') {
     functionalInteractionsDataFrame <- ddply(.data = chebiToReactomeDataFrame, c(singleIdColumnName), .fun = function(dfElement) {
         functionalInteractionsRows <- adply(.data = dfElement[1,c(idsListColumnName)][[1]], .margins = 1, dfff = dfff, .fun = function(listElement, dfff) {
             functionalInteractionsRow <- data.frame("Gene1" = dfElement[1, c(singleIdColumnName)],
@@ -535,4 +544,43 @@ createFunctionalInteractionsDataFrame <- function(chebiToReactomeDataFrame, sing
         functionalInteractionsRows
     })
     functionalInteractionsDataFrame[,c("Gene1", "Gene2", "Annotation", "Direction", "Score")]
+}
+
+
+# NEW PUBLIC API
+createFunctionalInteractionsDataFrame <- function(chebiToReactomeDataFrame, singleIdColumnName = 'ontologyId', idsListColumnName = 'ensembleIds',
+                                                  attachRootColumn = TRUE, rootIdCollumnName = 'root') {
+    functionalInteractionsDataFrame <- ddply(.data = chebiToReactomeDataFrame, c(singleIdColumnName), .fun = function(dfElement) {
+        functionalInteractionsRows <- adply(.data = dfElement[1,c(idsListColumnName)][[1]], .margins = 1, dfff = dfff, .fun = function(listElement, dfff) {
+            if (attachRootColumn) {
+                functionalInteractionsRow <- data.frame("root" = dfElement[1, c(rootIdCollumnName)],
+                                                        "singleIdColumnName" = dfElement[1, c(singleIdColumnName)],
+                                                        "idsListColumnName" = listElement,
+                                                        "Annotation" = "-",
+                                                        "Direction" = "-",
+                                                        "Score" = 1.00,
+                                                        stringsAsFactors = FALSE)
+            } else {
+                functionalInteractionsRow <- data.frame("singleIdColumnName" = dfElement[1, c(singleIdColumnName)],
+                                                        "idsListColumnName" = listElement,
+                                                        "Annotation" = "-",
+                                                        "Direction" = "-",
+                                                        "Score" = 1.00,
+                                                        stringsAsFactors = FALSE)
+            }
+
+            functionalInteractionsRow
+        })
+        functionalInteractionsRows
+    })
+
+    if (attachRootColumn) {
+        functionalInteractionsDataFrame <- functionalInteractionsDataFrame[,c("root", "singleIdColumnName", "idsListColumnName", "Annotation", "Direction", "Score")]
+        colnames(functionalInteractionsDataFrame)[2:3] <- c(singleIdColumnName, idsListColumnName)
+    } else {
+        functionalInteractionsDataFrame <- functionalInteractionsDataFrame[,c("singleIdColumnName", "idsListColumnName", "Annotation", "Direction", "Score")]
+        colnames(functionalInteractionsDataFrame)[1:2] <- c(singleIdColumnName, idsListColumnName)
+    }
+
+    functionalInteractionsDataFrame
 }

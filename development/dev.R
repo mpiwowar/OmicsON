@@ -6,6 +6,8 @@ source("http://bioconductor.org/biocLite.R")
 
 # development dependencies
 biocLite(c("devtools", "roxygen2", "knitr", "rmarkdown"))
+
+install.packages(c("devtools", "roxygen2", "knitr", "rmarkdown"))
 ## Can include important bug fixes.
 devtools::install_github("hadley/devtools", force = TRUE)
 
@@ -23,6 +25,8 @@ biocLite("testthat")
 devtools::use_vignette(name = "OmicsON")
 devtools::build_vignettes()
 vignette("OmicsON")
+install.packages(pkgs = "D:\\projects\\science\\OmicsON_0.99.0.tar.gz", repos = NULL)
+
 
 
 ###### Unit Tests ######
