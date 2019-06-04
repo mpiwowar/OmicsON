@@ -203,6 +203,12 @@ reduceCorrelation <- function(matrix, cutoff = 1) {
 makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFrame, YDataFrame,
                                              xCutoff = 1, yCutoff = 1) {
 
+    commonColNames <- intersect(colnames(XDataFrame), colnames(YDataFrame))
+    XDataFrame <- XDataFrame[
+        ,c(colnames(XDataFrame)[1],commonColNames)]
+    YDataFrame <- YDataFrame[
+        ,c(colnames(YDataFrame)[1],commonColNames)]
+
     # Where XData = transcriptomicsData and YData = lipidomicsData.
     XData <- data.frame(XDataFrame[!duplicated(XDataFrame[1]), ], row.names = 1)
     YData <- data.frame(YDataFrame[!duplicated(YDataFrame[1]), ], row.names = 1)
@@ -219,8 +225,8 @@ makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFr
     X <- as.matrix(X)
     Y <- as.matrix(Y)
 
-    X <- reduceCorrelation(X, cutoff = xCutoff)
-    Y <- reduceCorrelation(Y, cutoff = yCutoff)
+    X <- OmicsON:::reduceCorrelation(X, cutoff = xCutoff)
+    Y <- OmicsON:::reduceCorrelation(Y, cutoff = yCutoff)
 
     cca.fit <- NULL
 
@@ -234,9 +240,14 @@ makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFr
                 yacca::cca(X, Y)
             },
             error = function(cond) {
-                message("OmicsON - Included CCA can not solve task.")
-                message("Original message (yacca):")
-                message(cond)
+                message("OmicsON - Original message from yacca:")
+                message(cond$call, appendLF = TRUE)
+                message(cond$message, appendLF = TRUE)
+                message("OmicsON - CCA with used inputs can not solve task, proposed improvement:",
+                        appendLF = TRUE)
+                if (cond$call == "cor(x, o$canvarx, use = use)") {
+                    message("Increase xCutoff or yCutoff value.", appendLF = TRUE)
+                }
                 # Choose a return value in case of error
                 return(NA)
             },
