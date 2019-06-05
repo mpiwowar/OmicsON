@@ -3,5 +3,6 @@
 .RData
 .Rbuildignore
 inst/doc
-doc
+doc/*.html
+doc/*.R
 Meta

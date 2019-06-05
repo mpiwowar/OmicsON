@@ -85,7 +85,7 @@ lipidomicsInputData <- lipidomicsInputData[
 
 # UWAGI do vignetty: Manipulacja yCutoff i xCutoff bardzo ważna!!!
 # UWAGI do vignetty: Using cutoff can handle errors like:
-#       i)   NaNs producedOmicsON - CCA (yacca) finished.
+#       i)   NaNs produced
 #       ii)  singular matrix 'a' in solve
 #       iii) imaginary parts discarded in coercion
 ccaResultsNarrow1 <- OmicsON::makeCanonicalCorrelationAnalysis(

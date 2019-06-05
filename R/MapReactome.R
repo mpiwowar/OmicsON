@@ -362,6 +362,13 @@ plotCanonicalCorrelationAnalysisResults <- function(ccaResults, x.name = "xLabel
 makePartialLeastSquaresRegression <- function(xNamesVector, yNamesVector,
                                               XDataFrame, YDataFrame,
                                               treiningTestBoundary = 0.85, ncompValue = 10) {
+
+    commonColNames <- intersect(colnames(XDataFrame), colnames(YDataFrame))
+    XDataFrame <- XDataFrame[
+        ,c(colnames(XDataFrame)[1],commonColNames)]
+    YDataFrame <- YDataFrame[
+        ,c(colnames(YDataFrame)[1],commonColNames)]
+
     # Where XData = transcriptomicsData and YData = lipidomicsData.
     XData <- data.frame(XDataFrame[!duplicated(XDataFrame[1]), ], row.names = 1)
     YData <- data.frame(YDataFrame[!duplicated(YDataFrame[1]), ], row.names = 1)
