@@ -6,3 +6,4 @@ inst/doc
 doc/*.html
 doc/*.R
 Meta
+doc

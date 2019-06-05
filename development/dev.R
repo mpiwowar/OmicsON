@@ -22,11 +22,11 @@ biocLite("testthat")
 
 
 ###### Vignete Build ######
-devtools::use_vignette(name = "OmicsON")
-devtools::build_vignettes()
-vignette("OmicsON")
+usethis::use_vignette(name = "OmicsON")
+devtools::document(roclets=c('rd', 'collate', 'namespace', 'vignette'))
+devtools::build()
 install.packages(pkgs = "D:\\projects\\science\\OmicsON_0.99.0.tar.gz", repos = NULL)
-
+vignette("OmicsON")
 
 
 ###### Unit Tests ######
