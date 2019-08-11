@@ -1,3 +1,4 @@
+
 # library(CCA)
 # data(nutrimouse)
 # X=as.matrix(nutrimouse$gene[,1])
@@ -18,31 +19,26 @@ OmicsON::setUpReactomeMapping(
     UniProt2ReactomeFileURL = "https://reactome.org/download/current/UniProt2Reactome.txt")
 
 # PARAGRAPH: Data input
-# pathToFileWithLipidomicsData <- paste("C:/Users/Cezary/Downloads", "fatty_acid_KDOdoC.txt",
-#                                       sep = "/")
-pathToFileWithLipidomicsData <- system.file(package = "OmicsON", "extdata",
-                                            "nm-lipidomics.txt")
 
+pathToFileWithLipidomicsData <- system.file(package = "OmicsON", "extdata",
+                                            "nm-lipidomics-min.txt")
 # UWAGI do vignetty: No spaces in colnames and rownames.
 # UWAGI do vignetty: Use . as separator in decimal, not come ,.
 lipidomicsInputData <- read.table(pathToFileWithLipidomicsData, header = TRUE)
 
-# pathToFileWithTranscriptomicsData <- paste("C:/Users/Cezary/Downloads", "HGNC_KDOdoC.txt",
-#                                            sep = "/")
 pathToFileWithTranscriptomicsData <- system.file(package = "OmicsON", "extdata",
-                                                 "nm-transcriptomics.txt")
+                                                 "nm-transcriptomics-min.txt")
 transcriptomicsInputData <- read.table(pathToFileWithTranscriptomicsData, header = TRUE)
 
 # PARAGRAPH: Decorate data by Reactome data
-# decoratedByReactome <- OmicsON::decorateByReactomeData(chebiMoleculesDf = lipidomicsInputData,
-#                                                        chebiIdsColumnName = "Fatty_acids",
-#                                                        organismTaxonomyId = '9606')
-
 decoratedByReactome <- OmicsON::decorateByReactomeData(chebiMoleculesDf = lipidomicsInputData,
                                                        chebiIdsColumnName = "ChEBI",
                                                        organismTaxonomyId = '9606')
-
-
+# Write about mapping in vignette:
+#   * CHEBI:35465 - no mapping found
+#   * CHEBI:36036 -> CHEBI:53460, CHEBI:61205 -> CHEBI:53487, CHEBI:61204 -> CHEBI:53488
+#   * CHEBI:28661 map to itself
+decoratedByReactome[, c("root", "ontologyId")]
 
 # PARAGRAPH:
 # UWAGI do vignetty: Some accepted errors which are not stopping processing; Error in as.igraph.vs(graph, v) : Invalid vertex names
@@ -73,24 +69,14 @@ ontology2GenesSymboleFromUniProtFunctionalInteractions <- OmicsON::createFunctio
     singleIdColumnName = 'ontologyId',
     idsListColumnName = 'genesSymbolsFromUniProt')
 # PROCESSING: Very big set, 280 000 rows!!!
-ontology2GenesSymboleFromStringExpandFunctionalInteractionsEnsemble <- OmicsON::createFunctionalInteractionsDataFrame(
+ontology2GenesSymboleFromStringExpandFunctionalInteractions <- OmicsON::createFunctionalInteractionsDataFrame(
     decoratedByStringBaseOnEnsembleIds,
     singleIdColumnName = 'ontologyId',
     idsListColumnName = 'stringGenesSymbolsExpand')
-ontology2GenesSymboleFromStringNarrowFunctionalInteractionsEnsemble <- OmicsON::createFunctionalInteractionsDataFrame(
+ontology2GenesSymboleFromStringNarrowFunctionalInteractions <- OmicsON::createFunctionalInteractionsDataFrame(
     decoratedByStringBaseOnEnsembleIds,
     singleIdColumnName = 'ontologyId',
     idsListColumnName = 'stringGenesSymbolsNarrow')
-
-ontology2GenesSymboleFromStringExpandFunctionalInteractionsUniProt <- OmicsON::createFunctionalInteractionsDataFrame(
-    decoratedByStringBaseOnUniProtIds,
-    singleIdColumnName = 'ontologyId',
-    idsListColumnName = 'stringGenesSymbolsExpand')
-ontology2GenesSymboleFromStringNarrowFunctionalInteractionsUniProt <- OmicsON::createFunctionalInteractionsDataFrame(
-    decoratedByStringBaseOnUniProtIds,
-    singleIdColumnName = 'ontologyId',
-    idsListColumnName = 'stringGenesSymbolsNarrow')
-
 
 
 # PARAGRAPH: CCA - Canonical Correlation Analysis
@@ -105,19 +91,20 @@ lipidomicsInputData <- lipidomicsInputData[
 
 # UWAGI do vignetty: Manipulacja yCutoff i xCutoff bardzo ważna!!!
 # UWAGI do vignetty: Using cutoff can handle errors like:
-#       i)   NaNs produced
+#       i)   NaNs producedOmicsON - CCA (yacca) finished.
 #       ii)  singular matrix 'a' in solve
 #       iii) imaginary parts discarded in coercion
+#       iv) 'y' must be numeric
 ccaResultsNarrow1 <- OmicsON::makeCanonicalCorrelationAnalysis(
     xNamesVector = ontology2GenesSymboleFromStringNarrowFunctionalInteractions$stringGenesSymbolsNarrow,
     yNamesVector = ontology2GenesSymboleFromStringNarrowFunctionalInteractions$root,
     XDataFrame = transcriptomicsInputData,
-    YDataFrame = lipidomicsInputData, xCutoff = 0.55, yCutoff = 0.75)
+    YDataFrame = lipidomicsInputData, xCutoff = 1, yCutoff = 1)
 ccaResultsNarrow2 <- OmicsON::makeCanonicalCorrelationAnalysis(
     xNamesVector = ontology2GenesSymboleFromStringNarrowFunctionalInteractions$stringGenesSymbolsNarrow,
     yNamesVector = ontology2GenesSymboleFromStringNarrowFunctionalInteractions$root,
     XDataFrame = transcriptomicsInputData,
-    YDataFrame = lipidomicsInputData, xCutoff = 0.5, yCutoff = 0.6)
+    YDataFrame = lipidomicsInputData, xCutoff = 1, yCutoff = 1)
 # IMPORTANT: Compare and analyze two results with different cutoff!
 par(mfrow=c(1,2))
 OmicsON::plotCanonicalCorrelationAnalysisResults(ccaResults = ccaResultsNarrow1)
@@ -130,12 +117,12 @@ ccaResultsExpand1 <- OmicsON::makeCanonicalCorrelationAnalysis(
     xNamesVector = ontology2GenesSymboleFromStringExpandFunctionalInteractions$stringGenesSymbolsExpand,
     yNamesVector = ontology2GenesSymboleFromStringExpandFunctionalInteractions$root,
     XDataFrame = transcriptomicsInputData,
-    YDataFrame = lipidomicsInputData, xCutoff = 0.5, yCutoff = 0.7)
+    YDataFrame = lipidomicsInputData, xCutoff = 0.7, yCutoff = 0.7)
 ccaResultsExpand2 <- OmicsON::makeCanonicalCorrelationAnalysis(
     xNamesVector = ontology2GenesSymboleFromStringExpandFunctionalInteractions$stringGenesSymbolsExpand,
     yNamesVector = ontology2GenesSymboleFromStringExpandFunctionalInteractions$root,
     XDataFrame = transcriptomicsInputData,
-    YDataFrame = lipidomicsInputData, xCutoff = 0.4, yCutoff = 0.5)
+    YDataFrame = lipidomicsInputData, xCutoff = 0.55, yCutoff = 0.55)
 
 par(mfrow=c(1,2))
 OmicsON::plotCanonicalCorrelationAnalysisResults(ccaResults = ccaResultsExpand1)

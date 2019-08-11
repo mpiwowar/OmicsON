@@ -201,7 +201,10 @@ reduceCorrelation <- function(matrix, cutoff = 1) {
 
 # NEW API CCA
 makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFrame, YDataFrame,
-                                             xCutoff = 1, yCutoff = 1) {
+                                             xCutoff = 1, yCutoff = 1, scalingFactor = 1) {
+
+    XDataFrame[seq(2,length(XDataFrame))] <- XDataFrame[seq(2,length(XDataFrame))] * scalingFactor
+    YDataFrame[seq(2,length(YDataFrame))] <- YDataFrame[seq(2,length(YDataFrame))] * scalingFactor
 
     commonColNames <- intersect(colnames(XDataFrame), colnames(YDataFrame))
     XDataFrame <- XDataFrame[
@@ -263,6 +266,12 @@ makeCanonicalCorrelationAnalysis <- function(xNamesVector, yNamesVector, XDataFr
             }
         )
     }
+    cca.fit$xCutoff <- xCutoff
+    cca.fit$yCutoff <- yCutoff
+    cca.fit$functionalGrouping$xData <- interX
+    cca.fit$functionalGrouping$yData <- interY
+    cca.fit$correlationCutOff$xData <- colnames(X)
+    cca.fit$correlationCutOff$yData <- colnames(Y)
     cca.fit
 }
 
@@ -353,15 +362,26 @@ makeCCAOnGroups <- function(groupsDefinitionDF, mappingDF, leftMappingColumnName
 
 
 # NEW PUBLIC API
-plotCanonicalCorrelationAnalysisResults <- function(ccaResults, x.name = "xLabel", y.name = "yLabel") {
-    helio.plot(ccaResults, x.name = "xLabel", y.name = "yLabel")
+plotCanonicalCorrelationAnalysisResults <- function(ccaResults,
+                                                    x.name = "Transcriptomics",
+                                                    y.name = "Lipidomics",
+                                                    cv = 1, thirdLineText = "",
+                                                    ...) {
+
+    helio.plot(ccaResults, x.name = x.name, y.name = y.name,
+               sub = paste("Canonical Variate", cv, "\n",
+                           "xCutoff = ", ccaResults$xCutoff, ",",
+                           "yCutoff = ", ccaResults$yCutoff, "\n",
+                           thirdLineText, sep = " "), ...)
 }
 
 
 # NEW PUBLIC API
 makePartialLeastSquaresRegression <- function(xNamesVector, yNamesVector,
                                               XDataFrame, YDataFrame,
-                                              treiningTestBoundary = 0.85, ncompValue = 10) {
+                                              formula = Y ~ X,
+                                              ncompValue = 10,
+                                              xCutoff = 1, yCutoff = 1, ...) {
 
     commonColNames <- intersect(colnames(XDataFrame), colnames(YDataFrame))
     XDataFrame <- XDataFrame[
@@ -382,32 +402,22 @@ makePartialLeastSquaresRegression <- function(xNamesVector, yNamesVector,
     X <- transposedXData[as.character(interX)]
     Y <- transposedYData[as.character(interY)]
 
-    Xmelt <- I(as.matrix(X))
-    Ymelt <- I(as.matrix(Y))
+    X <- as.matrix(X)
+    Y <- as.matrix(Y)
+
+    X <- OmicsON:::reduceCorrelation(X, cutoff = xCutoff)
+    Y <- OmicsON:::reduceCorrelation(Y, cutoff = yCutoff)
+
+    Xmelt <- I(X)
+    Ymelt <- I(Y)
 
     combined <- data.frame(X = I(Xmelt), Y = I(Ymelt))
 
-    trainingRows <- ceiling(treiningTestBoundary * nrow(combined))
-    combinedToTraining <- combined[1:trainingRows,]
-    combinedToTest <- combined[(trainingRows + 1):nrow(combined),]
+    PLSResults <- NULL
 
     PLSResults <- tryCatch(
         {
-            PLSResultsFromMatrixInDF <- pls::plsr(Y ~ X, data = combinedToTraining)
-
-            if (ncompValue > PLSResultsFromMatrixInDF$ncomp) {
-                ncompValue <- PLSResultsFromMatrixInDF$ncomp
-            }
-            PlsPredict <- predict(PLSResultsFromMatrixInDF, ncomp = ncompValue, newdata = combinedToTest)
-            PlsTestRmsep <- pls::RMSEP(PLSResultsFromMatrixInDF, newdata = combinedToTest)
-            varianceExplained <- pls::explvar(PLSResultsFromMatrixInDF)
-
-            #TODO: TRAINING and TEST is required!
-            PLSResultsList <- list("training" = PLSResultsFromMatrixInDF,
-                               "varianceExplained" = varianceExplained,
-                               "test" = PlsPredict,
-                               "testRmsep" = PlsTestRmsep)
-            PLSResultsList
+            pls::plsr(formula = formula, data = combined, ncomp = ncompValue, ...)
         },
         error = function(cond) {
             message("OmicsON - Included PLS can not solve task.")
@@ -427,6 +437,14 @@ makePartialLeastSquaresRegression <- function(xNamesVector, yNamesVector,
             message("OmicsON - PLS (pls) finished.")
         }
     )
+
+    PLSResults$xCutoff <- xCutoff
+    PLSResults$yCutoff <- yCutoff
+    PLSResults$functionalGrouping$xData <- interX
+    PLSResults$functionalGrouping$yData <- interY
+    PLSResults$correlationCutOff$xData <- colnames(X)
+    PLSResults$correlationCutOff$yData <- colnames(Y)
+
     PLSResults
 }
 
@@ -514,20 +532,41 @@ makePLSOnGroups <- function(groupsDefinitionDF, mappingDF, leftMappingColumnName
 }
 
 # NEW PUBLIC API
-plotRmsepForPLS <- function(PLSResult) {
-    plot(pls::RMSEP(PLSResult$training), legendpos = "topright")
+plotRmsepForPLS <- function(PLSResult, resetToActualMfrow = TRUE,
+                            thirdLineText = "",
+                            selectionVector = colnames(PLSResult$coefficients), ...) {
+
+    actualMfrow <- par("mfrow")
+
+    rmsep <- pls::RMSEP(PLSResult)
+    selectionIndexes <- which(names(rmsep$val[1,,1]) %in% selectionVector)
+    rmsep$val <- rmsep$val[, selectionIndexes, , drop = FALSE]
+    # rmsep$comps <- rmsep$comps[selectionIndexes]
+
+    sub = paste("number of components = ", length(rmsep$comps), ", ",
+                "xCutoff = ", PLSResult$xCutoff, ", ",
+                "yCutoff = ", PLSResult$yCutoff, ", ",
+                thirdLineText, sep = "")
+
+    plot(rmsep, legendpos = "top", xlab = sub)
+
+    if (resetToActualMfrow) {
+        par(mfrow = actualMfrow)
+    }
 }
+
+
 
 
 # NEW PUBLIC API
 plotRegression <- function(PLSResult, ncompValue = NULL) {
     if (is.null(ncompValue)) {
-        plot(PLSResult$training, asp = 1, line = TRUE)
+        plot(PLSResult, asp = 1, line = TRUE)
     } else {
-        if (ncompValue > PLSResult$training$ncomp) {
-            ncompValue <- PLSResult$training$ncomp
+        if (ncompValue > PLSResult$ncomp) {
+            ncompValue <- PLSResult$ncomp
         }
-        plot(PLSResult$training, ncomp = ncompValue, asp = 1, line = TRUE)
+        plot(PLSResult, ncomp = ncompValue, asp = 1, line = TRUE)
     }
 }
 

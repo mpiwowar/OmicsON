@@ -23,9 +23,11 @@ biocLite("testthat")
 
 ###### Vignete Build ######
 usethis::use_vignette(name = "OmicsON")
-devtools::document(roclets=c('rd', 'collate', 'namespace', 'vignette'))
+#devtools::document(roclets=c('rd', 'collate', 'namespace', 'vignette'))
 devtools::build()
 install.packages(pkgs = "D:\\projects\\science\\OmicsON_0.99.0.tar.gz", repos = NULL)
+# Restart session, vignette is cached.
+library(OmicsON)
 vignette("OmicsON")
 
 
