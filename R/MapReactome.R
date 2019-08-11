@@ -543,12 +543,18 @@ plotRmsepForPLS <- function(PLSResult, resetToActualMfrow = TRUE,
     rmsep$val <- rmsep$val[, selectionIndexes, , drop = FALSE]
     # rmsep$comps <- rmsep$comps[selectionIndexes]
 
-    sub = paste("number of components = ", length(rmsep$comps), ", ",
-                "xCutoff = ", PLSResult$xCutoff, ", ",
-                "yCutoff = ", PLSResult$yCutoff, ", ",
-                thirdLineText, sep = "")
+    if ("" == thirdLineText) {
+        sub = paste("number of components = ", length(rmsep$comps), ", ",
+                    "xCutoff = ", PLSResult$xCutoff, ", ",
+                    "yCutoff = ", PLSResult$yCutoff, sep = "")
+    } else {
+        sub = paste("number of components = ", length(rmsep$comps), ", ",
+                    "xCutoff = ", PLSResult$xCutoff, ", ",
+                    "yCutoff = ", PLSResult$yCutoff, ", ",
+                    thirdLineText, sep = "")
+    }
 
-    plot(rmsep, legendpos = "top", xlab = sub)
+    plot(rmsep, legendpos = "topright", xlab = sub, ...)
 
     if (resetToActualMfrow) {
         par(mfrow = actualMfrow)

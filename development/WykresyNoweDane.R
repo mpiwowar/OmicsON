@@ -328,8 +328,12 @@ PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
-    YDataFrame = YDataFrame)
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+    YDataFrame = YDataFrame,
+    xCutoff = 1.0, yCutoff = 1.0)
+DataUnderAnalysis$OldData_Pls_CleanData_10_10$functionalGrouping <- PlsResultsNoExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_CleanData_10_10$correlationCutOff <- PlsResultsNoExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
 PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
@@ -338,7 +342,10 @@ PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     YDataFrame = YDataFrame,
     xCutoff = 0.6, yCutoff = 0.8
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+DataUnderAnalysis$OldData_Pls_CleanData_06_08$functionalGrouping <- PlsResultsNoExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_CleanData_06_08$correlationCutOff <- PlsResultsNoExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
 PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
@@ -347,8 +354,10 @@ PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     YDataFrame = YDataFrame,
     xCutoff = 0.6, yCutoff = 0.7
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
-
+DataUnderAnalysis$OldData_Pls_CleanData_06_07$functionalGrouping <- PlsResultsNoExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_CleanData_06_07$correlationCutOff <- PlsResultsNoExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
 # Stare dane - reactome extention - Ensemble
 xNamesVector <- as.character(ontology2GenesSymboleFromEnsembleFunctionalInteractions$genesSymbolsFromEnsemble)
@@ -382,30 +391,42 @@ OmicsON::plotCanonicalCorrelationAnalysisResults(
     main = "Structural Correlations (Transcriptomics vs Lipidomics)",
     thirdLineText = "Reactome")
 
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+PlsResultsReactomeEnsembleExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+DataUnderAnalysis$OldData_Pls_Reactome_Ensemble_10_10$functionalGrouping <- PlsResultsReactomeEnsembleExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_Reactome_Ensemble_10_10$correlationCutOff <- PlsResultsReactomeEnsembleExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsReactomeEnsembleExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
+
+
+PlsResultsReactomeEnsembleExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame,
     xCutoff = 0.9, yCutoff = 0.5
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+DataUnderAnalysis$OldData_Pls_Reactome_Ensemble_09_05$functionalGrouping <- PlsResultsReactomeEnsembleExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_Reactome_Ensemble_09_05$correlationCutOff <- PlsResultsReactomeEnsembleExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsReactomeEnsembleExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+PlsResultsReactomeEnsembleExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame,
-    xCutoff = 0.6, yCutoff = 0.7
+    xCutoff = 0.6, yCutoff = 0.7,
+    ncompValue = 7
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+DataUnderAnalysis$OldData_Pls_Reactome_Ensemble_06_07$functionalGrouping <- PlsResultsReactomeEnsembleExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_Reactome_Ensemble_06_07$correlationCutOff <- PlsResultsReactomeEnsembleExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsReactomeEnsembleExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
 # Stare dane - reactome extention - UniProt
 xNamesVector <- as.character(ontology2GenesSymboleFromUniProtFunctionalInteractions$genesSymbolsFromUniProt)
@@ -422,7 +443,6 @@ CcaResultsReactomeUniProtExtentionOldData <- OmicsON::makeCanonicalCorrelationAn
 )
 DataUnderAnalysis$OldData_Cca_Reactome_UniProt_08_09$functionalGrouping <- CcaResultsReactomeUniProtExtentionOldData$functionalGrouping
 DataUnderAnalysis$OldData_Cca_Reactome_UniProt_08_09$correlationCutOff <- CcaResultsReactomeUniProtExtentionOldData$correlationCutOff
-
 OmicsON::plotCanonicalCorrelationAnalysisResults(
     ccaResults = CcaResultsReactomeUniProtExtentionOldData,
     main = "Structural Correlations (Transcriptomics vs Lipidomics)",
@@ -439,33 +459,46 @@ OmicsON::plotCanonicalCorrelationAnalysisResults(
     main = "Structural Correlations (Transcriptomics vs Lipidomics)",
     thirdLineText = "Reactome")
 
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+
+PlsResultsReactomeUniProtExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+DataUnderAnalysis$OldData_Pls_Reactome_UniProt_10_10$functionalGrouping <- PlsResultsReactomeUniProtExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_Reactome_UniProt_10_10$correlationCutOff <- PlsResultsReactomeUniProtExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsReactomeUniProtExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
+
+
+PlsResultsReactomeUniProtExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame,
     xCutoff = 0.8, yCutoff = 0.9
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+DataUnderAnalysis$OldData_Pls_Reactome_UniProt_08_09$functionalGrouping <- PlsResultsReactomeUniProtExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_Reactome_UniProt_08_09$correlationCutOff <- PlsResultsReactomeUniProtExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsReactomeUniProtExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+PlsResultsReactomeUniProtExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame,
-    xCutoff = 0.6, yCutoff = 0.7
+    xCutoff = 0.6, yCutoff = 0.7,
+    ncompValue = 6
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+DataUnderAnalysis$OldData_Pls_Reactome_UniProt_06_07$functionalGrouping <- PlsResultsReactomeUniProtExtentionOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_Reactome_UniProt_06_07$correlationCutOff <- PlsResultsReactomeUniProtExtentionOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsReactomeUniProtExtentionOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
 
-
+# TBC : :)
 # Stare dane - STRING extention - Ensemble - Expand
 xNamesVector <- as.character(ontology2GenesSymboleFromStringExpandFunctionalInteractionsEnsemble$stringGenesSymbolsExpand)
 yNamesVector <- as.character(ontology2GenesSymboleFromStringExpandFunctionalInteractionsEnsemble$root)
@@ -479,11 +512,11 @@ CcaResultsStringEnsembleExtentionExpandOldData <- OmicsON::makeCanonicalCorrelat
     xCutoff = 0.7, yCutoff = 0.8)
 DataUnderAnalysis$OldData_Cca_String_Expand_Ensemble_07_08$functionalGrouping <- CcaResultsStringEnsembleExtentionExpandOldData$functionalGrouping
 DataUnderAnalysis$OldData_Cca_String_Expand_Ensemble_07_08$correlationCutOff <- CcaResultsStringEnsembleExtentionExpandOldData$correlationCutOff
-
 OmicsON::plotCanonicalCorrelationAnalysisResults(
     ccaResults = CcaResultsStringEnsembleExtentionExpandOldData,
     main = "Structural Correlations (Transcriptomics vs Lipidomics)",
     thirdLineText = "Reactome and STRING")
+
 CcaResultsStringEnsembleExtentionExpandOldData <- OmicsON::makeCanonicalCorrelationAnalysis(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
@@ -492,36 +525,45 @@ CcaResultsStringEnsembleExtentionExpandOldData <- OmicsON::makeCanonicalCorrelat
     xCutoff = 0.6, yCutoff = 0.7)
 DataUnderAnalysis$OldData_Cca_String_Expand_Ensemble_06_07$functionalGrouping <- CcaResultsStringEnsembleExtentionExpandOldData$functionalGrouping
 DataUnderAnalysis$OldData_Cca_String_Expand_Ensemble_06_07$correlationCutOff <- CcaResultsStringEnsembleExtentionExpandOldData$correlationCutOff
-
 OmicsON::plotCanonicalCorrelationAnalysisResults(
     ccaResults = CcaResultsStringEnsembleExtentionExpandOldData,
     main = "Structural Correlations (Transcriptomics vs Lipidomics)",
     thirdLineText = "Reactome and STRING")
 
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+PlsResultsStringEnsembleExtentionExpandOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+DataUnderAnalysis$OldData_Pls_String_Expand_Ensemble_10_10$functionalGrouping <- PlsResultsStringEnsembleExtentionExpandOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_String_Expand_Ensemble_10_10$correlationCutOff <- PlsResultsStringEnsembleExtentionExpandOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsStringEnsembleExtentionExpandOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
+
+PlsResultsStringEnsembleExtentionExpandOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame,
     xCutoff = 0.7, yCutoff = 0.8
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+DataUnderAnalysis$OldData_Pls_String_Expand_Ensemble_07_08$functionalGrouping <- PlsResultsStringEnsembleExtentionExpandOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_String_Expand_Ensemble_07_08$correlationCutOff <- PlsResultsStringEnsembleExtentionExpandOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsStringEnsembleExtentionExpandOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
-PlsResultsNoExtentionOldData <- OmicsON::makePartialLeastSquaresRegression(
+PlsResultsStringEnsembleExtentionExpandOldData <- OmicsON::makePartialLeastSquaresRegression(
     xNamesVector = xNamesVector,
     yNamesVector = yNamesVector,
     XDataFrame = XDataFrame,
     YDataFrame = YDataFrame,
     xCutoff = 0.6, yCutoff = 0.7
 )
-OmicsON::plotRmsepForPLS(PLSResult = PlsResultsNoExtentionOldData)
+DataUnderAnalysis$OldData_Pls_String_Expand_Ensemble_06_07$functionalGrouping <- PlsResultsStringEnsembleExtentionExpandOldData$functionalGrouping
+DataUnderAnalysis$OldData_Pls_String_Expand_Ensemble_06_07$correlationCutOff <- PlsResultsStringEnsembleExtentionExpandOldData$correlationCutOff
+OmicsON::plotRmsepForPLS(PLSResult = PlsResultsStringEnsembleExtentionExpandOldData,
+                         nCols = 3, nRows = 2, lty = c(2))
 
 
 # Stare dane - STRING extention - UniProt - Expand
